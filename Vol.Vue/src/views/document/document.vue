@@ -52,7 +52,12 @@ export default {
       }
     }
     this.text = this.timeline[this.activedIndex].text;
-    this.$Message.error("开发文档已在整理中。。。");
+      // this.$Notice.success({
+      //               title: '文档更新提示',
+      //               desc: '文档已在持续更新中,见[前端开发]',
+      //               duration: 0
+      //           });
+   // this.$Message.error("开发文档已在整理中。。。");
   },
   data() {
     return {
@@ -60,17 +65,12 @@ export default {
       activedIndex: 0,
       timeline: [
         {
-          text: "QQ群：还没想好!",
-          path: "#",
-          actived: false
-        },
-        {
           text: "返回首页",
           path: "/home",
           actived: false
         },
         {
-          text: "项目启动",
+          text: "项目启动与发布",
           path: "/document/guide",
           actived: false
         },
@@ -176,7 +176,7 @@ export default {
   position: relative;
 
   height: 100%;
-  max-width: 1200px;
+  max-width: 1250px;
   left: 0;
   right: 0;
   margin: 0 auto;

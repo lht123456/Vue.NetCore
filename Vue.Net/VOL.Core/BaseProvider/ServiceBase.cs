@@ -81,21 +81,14 @@ namespace VOL.Core.BaseProvider
         /// </summary>
         /// <param name="pageData"></param>
         /// <param name="propertyInfo"></param>
-        private void GetPageDataSort(PageDataOptions pageData, PropertyInfo[] propertyInfo)
+        private Dictionary<string, QueryOrderBy> GetPageDataSort(PageDataOptions pageData, PropertyInfo[] propertyInfo)
         {
             if (base.OrderByExpression != null)
             {
-                pageData.Sort = string.Join(" ,",
-                    base.OrderByExpression
-                    .GetExpressionToDic()
-                    .Select(x => x.Key + "  " + x.Value.ToString())
-                    .ToList());
-                return;
+                return base.OrderByExpression.GetExpressionToDic();
             }
-            pageData.Sort = (pageData.Sort ?? "").Trim().ToLower();
-
             //排序字段不存在直接移除
-            if (!string.IsNullOrEmpty(pageData.Sort) && !propertyInfo.Any(x => x.Name.ToLower() == pageData.Sort))
+            if (!string.IsNullOrEmpty(pageData.Sort) && !propertyInfo.Any(x => x.Name.ToLower() == pageData.Sort.ToLower()))
             {
                 pageData.Sort = null;
             }
@@ -104,7 +97,7 @@ namespace VOL.Core.BaseProvider
             {
                 PropertyInfo property = propertyInfo.GetKeyProperty();
                 //如果主键不是自增类型则使用appsettings.json中CreateMember->DateField配置的创建时间作为排序
-                if (property.PropertyType == typeof(int) || property.PropertyType == typeof(Int64))
+                if (property.PropertyType == typeof(int) || property.PropertyType == typeof(long))
                 {
                     if (!propertyInfo.Any(x => x.Name.ToLower() == pageData.Sort))
                     {
@@ -113,17 +106,20 @@ namespace VOL.Core.BaseProvider
                 }
                 else
                 {
-                    if (string.IsNullOrEmpty(AppSetting.CreateMember.DateField)) throw new Exception("未配置好查询的排序默认排序字段");
-                    pageData.Sort = AppSetting.CreateMember.DateField;
+                    if (!string.IsNullOrEmpty(AppSetting.CreateMember.DateField)
+                        && propertyInfo.Any(x => x.Name == AppSetting.CreateMember.DateField))
+                    {
+                        pageData.Sort = AppSetting.CreateMember.DateField;
+                    }
+                    else
+                    {
+                        pageData.Sort = propertyInfo.GetKeyName();
+                    }
                 }
             }
-            pageData.Order = (pageData.Order ?? _desc).Trim().ToLower();
-            if (pageData.Order != _desc && pageData.Order != _asc)
-            {
-                pageData.Order = _desc;
-            }
-            pageData.Sort = pageData.Sort + "  " + pageData.Order;
-
+            return new Dictionary<string, QueryOrderBy>() { {
+                    pageData.Sort, pageData.Order?.ToLower() == _asc? QueryOrderBy.Asc: QueryOrderBy.Desc
+                } };
         }
 
         /// <summary>
@@ -135,7 +131,7 @@ namespace VOL.Core.BaseProvider
         private PageDataOptions ValidatePageOptions(PageDataOptions options, out IQueryable<T> queryable)
         {
             options = options ?? new PageDataOptions();
-            GetPageDataSort(options, TProperties);
+
             List<SearchParameters> searchParametersList = new List<SearchParameters>();
             if (!string.IsNullOrEmpty(options.Wheres))
             {
@@ -190,19 +186,10 @@ namespace VOL.Core.BaseProvider
         public virtual PageGridData<T> GetPageData(PageDataOptions options)
         {
             options = ValidatePageOptions(options, out IQueryable<T> queryable);
-            Dictionary<string, QueryOrderBy> orderbyDic = new Dictionary<string, QueryOrderBy>();
-            options.Sort.Split(',').Select(x => x.Trim()).Where(c => c.Length > 0).ToList().ForEach(s =>
-            {
-                string[] sortArr = s.Split(' ').Select(x => x.Trim()).Where(c => c.Length > 0).ToArray();
-                if (sortArr.Length == 2)
-                {
-                    orderbyDic.Add(sortArr[0], sortArr[1].ToLower() == "desc"
-                        ? QueryOrderBy.Desc
-                        : QueryOrderBy.Asc);
-                }
-            });
-            PageGridData<T> pageGridData = new PageGridData<T>();
+            //获取排序字段
+            Dictionary<string, QueryOrderBy> orderbyDic = GetPageDataSort(options, TProperties);
 
+            PageGridData<T> pageGridData = new PageGridData<T>();
             if (QueryRelativeExpression != null)
             {
                 queryable = QueryRelativeExpression.Invoke(queryable);
@@ -339,8 +326,8 @@ namespace VOL.Core.BaseProvider
             string dicPath = $"Download/{DateTime.Now.ToString("yyyMMdd")}/Template/".MapPath();
             if (!Directory.Exists(dicPath)) Directory.CreateDirectory(dicPath);
             string fileName = tableName + DateTime.Now.ToString("yyyyMMddHHssmm") + ".xlsx";
-
-            EPPlusHelper.ExportTemplate<T>(GetIgnoreTemplate(), dicPath, fileName);
+            //DownLoadTemplateColumns 2020.05.07增加扩展指定导出模板的列
+            EPPlusHelper.ExportTemplate<T>(DownLoadTemplateColumns,GetIgnoreTemplate(), dicPath, fileName);
             return Response.OK(null, dicPath + fileName);
         }
 
@@ -364,7 +351,7 @@ namespace VOL.Core.BaseProvider
             }
             try
             {
-                Response = EPPlusHelper.ReadToDataTable<T>(dicPath, GetIgnoreTemplate());
+                Response = EPPlusHelper.ReadToDataTable<T>(dicPath, DownLoadTemplateColumns, GetIgnoreTemplate());
             }
             catch (Exception ex)
             {
@@ -406,7 +393,8 @@ namespace VOL.Core.BaseProvider
                 Response = ExportOnExecuting(list, ignoreColumn);
                 if (!Response.Status) return Response;
             }
-            EPPlusHelper.Export(list, ignoreColumn, savePath, fileName);
+            //ExportColumns 2020.05.07增加扩展指定导出模板的列
+            EPPlusHelper.Export(list, ExportColumns?.GetExpressionToArray(), ignoreColumn, savePath, fileName);
             return Response.OK(null, (savePath + "/" + fileName).EncryptDES(AppSetting.Secret.ExportFile));
         }
 
@@ -814,6 +802,17 @@ namespace VOL.Core.BaseProvider
 
                 result = detailType.ValidateDicInEntity(saveModel.DetailData, true, false, new string[] { mainKeyProperty.Name });
                 if (result != string.Empty) return Response.Error(result);
+
+                //主从关系指定外键,即从表的外键可以不是主键的主表,还需要改下代码生成器设置属性外键,功能预留后面再开发(2020.04.25)
+                //string foreignKey = type.GetTypeCustomValue<System.ComponentModel.DataAnnotations.Schema.ForeignKeyAttribute>(x => new { x.Name });
+                //if (!string.IsNullOrEmpty(foreignKey))
+                //{
+                //    var _mainKeyProperty = detailType.GetProperties().Where(x => x.Name.ToLower() == foreignKey.ToLower()).FirstOrDefault();
+                //    if (_mainKeyProperty != null)
+                //    {
+                //        mainKeyProperty = _mainKeyProperty;
+                //    }
+                //}
             }
 
             //获取主建类型的默认值用于判断后面数据是否正确,int long默认值为0,guid :0000-000....

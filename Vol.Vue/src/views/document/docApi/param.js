@@ -145,9 +145,9 @@ let param = {
         methods: [{ name: "delRow", desc: "删除选中行，this.$refs.自定义的名字.delRow()", param: "" },
         { name: "add", desc: "添加行，this.$refs.自定义的名字.add({'字段1':'值1'})", param: "" },
         { name: "selection", desc: "获取选中的行，this.$refs.自定义的名字.selection,注意此处selection是属性", param: "" },
-        { name: "load", desc: "刷新表数据，this.$refs.自定义的名字.load({条件:}),条件可以任意写你自己接收的格式", param: "" },
+        { name: "load", desc: "刷新表数据，this.$refs.自定义的名字.load({条件:xx},true),条件可以任意写你自己接收的格式,第二个参数是否重置分页信息", param: "" },
         { name: "resetPage", desc: "重置分页信息，this.$refs.自定义的名字.resetPage()", param: "" },
-        { name: "loadBefore", desc: `从后台加载数据前处理，也可参照【从api加载数据】Demo", param: "(param, callBack) 参数：param为查询相关配置，可自己修改此配置;callBack回调方法，callBack(true),如果回调传入false，将中断代码执行,<span style="display:none;"></span><span style="line-height:2;font-size:18px;"><span style="display:none;"></span><span style="font-size:14px;">&nbsp; &nbsp; 
+        { name: "loadBefore", desc: `从后台加载数据前处理，也可参照【从api加载数据】Demo", param: "(param, callBack) 参数：param为查询相关配置，可自己修改此配置;callBack回调方法，callBack(true),如果回调传入false，将中断代码执行,<span style="display:none;"></span><span style="line-height:2;font-size:18px;"><span style="display:none;"></span><span style="font-size:14px;">&nbsp; &nbsp;
         <br/>
         /*查询前处理(如果需要查询条件，实现组件方法loadBefore方法即可:</span><br />
             <span style="font-size:14px;"> &nbsp; &nbsp; &nbsp; &nbsp; loadBefore=(param, callBack)=&gt;{</span><br />
@@ -179,13 +179,21 @@ let param = {
         },
         { name: "extend", desc: "扩展js中的所有对象,如:doc_viewGirdExtension.js整个js文件的对象", type: "json", default: "array" },
         { name: "single", desc: "查询界面的表是否只能单选", type: "bool", default: "false" },
-        { name: "boxModel", desc: "弹出新建、编辑框", type: "bool", default: "false" },
+        { name: "boxModel", desc: "弹出新建、编辑框状态", type: "bool", default: "false" },
         { name: "currentAction", desc: "当前操作的状态:如：Add,Update", type: "string", default: "" },
         { name: "currentRow", desc: "当前编辑的行数据", type: "json", default: "" },
         { name: "labelWidth", desc: "高级查询label标签的宽度", type: "number", default: "100" },
         { name: "maxBtnLength", desc: "查询界面显示的按钮最大数量，超过的在更多中显示", type: "number", default: "3" },
-        { name: "buttons", desc: "查询界面的所有按钮", type: "array", default: "[]" },
-        { name: "boxButtons", desc: "弹出框的所有按钮", type: "array", default: "[]" },
+        { name: "buttons", desc: `查询界面的所有按钮，[{<br />
+          &nbsp; &nbsp; name: "刷 新",//按钮名称<br />
+          &nbsp; &nbsp; icon: 'md-refresh',//按钮图标，参照iview图标<br />
+          &nbsp; &nbsp; type: 'success',//按钮类型,可参照iview buttons设置此属性<br />
+          &nbsp; &nbsp; hidden:false,//是否隐藏按钮(如果想要隐藏按钮，在onInited方法中遍历buttons，设置hidden=true)<br />
+          &nbsp; &nbsp; onClick: function () { //触发事件<br />
+          &nbsp; &nbsp; &nbsp; &nbsp; this.refresh();<br />
+          &nbsp; &nbsp; }<br />
+          }]<br />`, type: "array", default: "[]" },
+        { name: "boxButtons", desc: "弹出框的所有按钮，格式同上", type: "array", default: "[]" },
         { name: "dicKeys", desc: "所有数据源的字典编号", type: "array", default: "[]" },
         { name: "hasKeyField", desc: "所有有数据源的字段", type: "array", default: "[]" },
         { name: "load", desc: "页面打开后是否默认加载表格数据", type: "bool", default: "true" },
@@ -196,7 +204,7 @@ let param = {
             name: "detailOptions", desc: `<div class="cnblogs_code">
             <pre></pre>
             <div class="cnblogs_code">
-            <pre><span style="color: #000000;">    
+            <pre><span style="color: #000000;">
                  明细表参数
                  detailOptions: {
                     </span><span style="color: #008000;">//</span><span style="color: #008000;">弹出框从表(明细)对象</span>
@@ -224,8 +232,8 @@ let param = {
                     </span><span style="color: #008000;">//</span><span style="color: #008000;">结束编辑后</span>
                     endEditAfter: (row, column, index) =&gt;<span style="color: #000000;"> {
                       </span><span style="color: #0000ff;">return</span> <span style="color: #0000ff;">true</span><span style="color: #000000;">;
-                    }, 
-                    <span style="color: #008000;">summary:弹出框明细表是否显示统计和求，设置为true需要实现后台GetDetailSummary方法,可参照SellOrderService实现</span>, 
+                    },
+                    <span style="color: #008000;">summary:弹出框明细表是否显示统计和求，设置为true需要实现后台GetDetailSummary方法,可参照SellOrderService实现</span>,
              }</span></pre>
             </div>
             <pre></pre>
@@ -252,7 +260,7 @@ let param = {
         {
             name: "pagination", desc: `分页参数<div class="cnblogs_code">
         <pre><span style="color: #000000;">pagination: {
-              total: </span>0<span style="color: #000000;">, 
+              total: </span>0<span style="color: #000000;">,
              size: </span>30, <span style="color: #008000;">//</span><span style="color: #008000;">分页大小</span>
             sortName: "" <span style="color: #008000;">//</span><span style="color: #008000;">排序字段</span>
          }</pre>
@@ -274,8 +282,21 @@ let param = {
         <p>&nbsp;</p>`, type: "json", default: ""
         },
         ],
+
+
         methods: [{ name: "refresh", desc: "刷新查询界面的表数据,使用：this.refresh()", param: "" },
         { name: "getSelectRows", desc: "查询界面获取选中的行,使用：this.getSelectRows()", param: "" },
+        { name: "获取从表明细选择中的行", desc: "获取从表明细选择中的行,使用：this.$refs.detail.getSelected()", param: "" },
+        { name: "刷新从表数据", desc: `<p> this.resetDetailTable()</p>
+        <br />
+//如果是新建弹出框中，此方法不会执行<br />
+//新建中刷新从表解决办法：<br />
+/*<br />
+&nbsp;let _currentAction= this.currentAction;<br />
+&nbsp; this.currentAction="";<br />
+&nbsp; this.resetDetailTable()<br />
+&nbsp; this.currentAction=_currentAction;<br />
+*/<br />`, param: "" },
         { name: "扩展js方法使用", desc: "扩展js为当前数据库表生成页面扩展js,如:SellOrder.js,文件由代码生成，可自行在js中实现下面列出的方法", param: "" },
         {
             name: "扩展js方法使用", desc: `<div class="cnblogs_code">
@@ -352,7 +373,7 @@ let param = {
                     })
                 },
                 mounted() {
-                  
+
                    </span><span style="color: #008000;">//</span><span style="color: #008000;"> this.$Notice.success({ title: '执行mounted方法' });</span>
         <span style="color: #000000;">        },
                 onInit() {
@@ -369,7 +390,7 @@ let param = {
                             }
                         });
                     })
-        
+
                     </span><span style="color: #008000;">//</span><span style="color: #008000;">动态修改table并给列添加事件</span>
                     <span style="color: #0000ff;">this</span>.columns.forEach(x =&gt;<span style="color: #000000;"> {
                         </span><span style="color: #0000ff;">if</span> (x.field == "Qty"<span style="color: #000000;">) {
@@ -381,7 +402,7 @@ let param = {
                             }
                         }
                     })
-        
+
                     </span><span style="color: #008000;">//</span><span style="color: #008000;">动态设置弹出框table的高度</span>
                     <span style="color: #0000ff;">this</span>.detailOptions.height = 110<span style="color: #000000;">;
                     </span><span style="color: #008000;">//</span><span style="color: #008000;">动态设置查询界面table高度</span>
@@ -392,17 +413,26 @@ let param = {
                     </span><span style="color: #008000;">//</span><span style="color: #008000;">   this.$Notice.success({ title: 'create方法执行后', desc: '你可以SellOrder.js中编写业务逻辑,其他方法同样适用' });</span>
         <span style="color: #000000;">        },
                 searchBefore(param) { </span><span style="color: #008000;">//</span><span style="color: #008000;">查询ViewGird表数据前,param查询参数</span>
-                    <span style="color: #008000;">//</span><span style="color: #008000;">你可以指定param查询的参数，处如果返回false，则不会执行查询</span>
-                    <span style="color: #008000;">//</span><span style="color: #008000;"> this.$Notice.success({ title: this.table.cnName + ',查询前' });</span>
-                    <span style="color: #008000;">//</span><span style="color: #008000;"> console.log("扩展的"this.detailOptions.cnName + '触发loadDetailTableBefore');</span>
-                    <span style="color: #0000ff;">return</span> <span style="color: #0000ff;">true</span><span style="color: #000000;">;
+                  &nbsp; &nbsp; //添加任意查询参数
+                  &nbsp; &nbsp; //在后台GetPageData()方法读取options.value
+                  &nbsp; &nbsp; //见后台开发-&gt;后台代码扩展实现
+                  &nbsp; &nbsp; //param.value="xxx";
+
+                  &nbsp; &nbsp; //添加其他查询条件,也可以在后台扩展中写查询条件
+                  &nbsp; &nbsp; // param.wheres = [{
+                  &nbsp; &nbsp; //&nbsp; &nbsp;'name': '字段名',
+                  &nbsp; &nbsp; //&nbsp; &nbsp;'value': '查询的值',
+                  &nbsp; &nbsp; //&nbsp; &nbsp;'displayType': 'like'//设置为模糊查询
+                  &nbsp; &nbsp; // }]
+                  &nbsp; &nbsp; //返回false，则不会执行查询
+                   &nbsp; return true;
                 },
                 searchAfter(result) { </span><span style="color: #008000;">//</span><span style="color: #008000;">查询ViewGird表数据后param查询参数,result回返查询的结果</span>
                     <span style="color: #0000ff;">this</span>.$Notice.success({ title: <span style="color: #0000ff;">this</span>.table.cnName + ',查询结果', desc: '返回的对象：' +<span style="color: #000000;"> JSON.stringify(result) });
                     </span><span style="color: #0000ff;">return</span> <span style="color: #0000ff;">true</span><span style="color: #000000;">;
                 },
                 searchDetailBefore(param) {</span><span style="color: #008000;">//</span><span style="color: #008000;">查询从表表数据前,param查询参数</span>
-                    <span style="color: #008000;">//</span><span style="color: #008000;">  this.$Notice.success({ title: this.detailOptions.cnName + '查询前' });</span>
+                    <span style="color: #008000;">//</span><span style="color: #008000;"> 同上searchBefore操作</span>
                     <span style="color: #0000ff;">return</span> <span style="color: #0000ff;">true</span><span style="color: #000000;">;
                 },
                 searchDetailAfter(data) {</span><span style="color: #008000;">//</span><span style="color: #008000;">查询从表后param查询参数,result回返查询的结果</span>
@@ -426,7 +456,7 @@ let param = {
                     </span><span style="color: #0000ff;">return</span> <span style="color: #0000ff;">true</span><span style="color: #000000;">;
                 },
                 addBefore(formData) { </span><span style="color: #008000;">//</span><span style="color: #008000;">新建保存前formData为对象，包括明细表</span>
-                <div style="color: #008000;"> 
+                <div style="color: #008000;">
                 //formData格式：
                 // {
                 //&nbsp; &nbsp; &nbsp;mainData: { 主表字段1: 'x1', 主表字段2: 'x2' },
@@ -444,7 +474,7 @@ let param = {
                     </span><span style="color: #0000ff;">return</span> <span style="color: #0000ff;">true</span><span style="color: #000000;">;
                 },
                 updateBefore(formData) { </span><span style="color: #008000;">//</span><span style="color: #008000;">编辑保存前formData为对象，包括明细表、删除行的Id</span>
-                    <div style="color: #008000;"> 
+                    <div style="color: #008000;">
                     //formData格式：
                     // {
                     //&nbsp; &nbsp; &nbsp;mainData: { 主表字段1: 'x1', 主表字段2: 'x2' },
@@ -513,9 +543,10 @@ let param = {
                 },
                 detailRowChange(row) {  </span><span style="color: #008000;">//</span><span style="color: #008000;">明细表界面table点击行事件，只有设置了single=true单选才会生效</span>
                 },
-                reloadDicSource() { <span style="color: #008000;">//重新加载字典绑定的数据源</span>
+                onActivated() { <span style="color: #008000;">//重新加载字典绑定的数据源(如果需要每次点击页面时刷新字典数据源，直接将整个方法添加到js的methods中即可使用)</span>
                 &nbsp;&nbsp;&nbsp; <span style="color: #0000ff;">this</span>.initDicKeys();
                 }
+
             }
         };
         export </span><span style="color: #0000ff;">default</span> extension;</pre>
@@ -568,7 +599,7 @@ let param = {
         <span style="color: #000000;">      type: Number,
               </span><span style="color: #0000ff;">default</span>: 3<span style="color: #000000;">
             },
-        
+
             autoUpload: {
               </span><span style="color: #008000;">//</span><span style="color: #008000;">选择文件后是否自动上传</span>
         <span style="color: #000000;">      type: Boolean,
@@ -654,4 +685,4 @@ let param = {
         methods: []
     }
 }
-export default param;  
+export default param;

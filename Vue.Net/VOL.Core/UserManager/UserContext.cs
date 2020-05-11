@@ -8,6 +8,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using VOL.Core.CacheManager;
 using VOL.Core.DBManager;
+using VOL.Core.Enums;
 using VOL.Core.Extensions;
 using VOL.Core.Extensions.AutofacManager;
 using VOL.Entity;
@@ -205,7 +206,8 @@ namespace VOL.Core.ManageUser
                 {
                     Menu_Id = a.Menu_Id,
                     ParentId = a.ParentId,
-                    TableName = a.TableName ?? "",
+                    //2020.05.06增加默认将表名转换成小写，权限验证时不再转换
+                    TableName = (a.TableName ?? "").ToLower(),
                     //MenuAuth = a.Auth,
                     UserAuth = a.Auth,
                 }).ToList();
@@ -245,7 +247,8 @@ namespace VOL.Core.ManageUser
                                                   {
                                                       Menu_Id = a.Menu_Id,
                                                       ParentId = a.ParentId,
-                                                      TableName = a.TableName ?? "",
+                                                      //2020.05.06增加默认将表名转换成小写，权限验证时不再转换
+                                                      TableName = (a.TableName ?? "").ToLower(),
                                                       MenuAuth = a.Auth,
                                                       UserAuth = b.AuthValue ?? ""
                                                   }).ToList();
@@ -283,6 +286,17 @@ namespace VOL.Core.ManageUser
             return GetPermissions(roleId).Any(x => x.TableName == tableName && x.UserAuthArr.Contains(authName));
         }
 
+        /// <summary>
+        /// 判断是否有权限
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <param name="authName"></param>
+        /// <param name="roleId"></param>
+        /// <returns></returns>
+        public bool ExistsPermissions(string tableName, ActionPermissionOptions actionPermission, int roleId = 0)
+        {
+            return ExistsPermissions(tableName, actionPermission.ToString(),roleId);
+        }
         public int UserId
         {
             get

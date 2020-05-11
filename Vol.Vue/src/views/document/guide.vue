@@ -7,16 +7,16 @@
     border-radius: 5px;
     margin-bottom: 20px;"
     >
+        <a
+        target="_blank"
+        style="border-bottom: 1px solid;margin: 0 10px"
+        href="http://donate.volcore.xyz"
+      >项目赞助</a>
       <a
         target="_blank"
         style="border-bottom: 1px solid;margin: 0 10px"
         href="https://github.com/cq-panda/Vue.NetCore"
       >GitHub</a>
-      <a
-        target="_blank"
-        style="border-bottom: 1px solid;margin: 0 10px"
-        href="https://www.cnblogs.com/-clouds/p/11633786.html"
-      >博客园介绍</a>
       <a
         target="_blank"
         style="border-bottom: 1px solid;margin: 0 10px"
@@ -114,7 +114,9 @@
       >
         <span style="line-height:3;font-size:16px;">
           启动前端项目：前端Vue项目路径 ../VOL.Vue ，&nbsp;
-          <span style="font-family:微软雅黑;font-size:16px;white-space:normal;">找到</span>
+          <span
+            style="font-family:微软雅黑;font-size:16px;white-space:normal;"
+          >找到</span>
           <span style="font-family:微软雅黑;font-size:16px;white-space:normal;">
             <span style="font-family:微软雅黑;font-size:16px;white-space:normal;">run.bat</span>命令点击启动
           </span>。
@@ -129,6 +131,37 @@
       </li>
     </ul>
     <br />
+
+<h2
+      style="padding-left: 24px;white-space:normal;box-sizing:border-box;-webkit-tap-highlight-color:transparent;padding:2px 20px;border-radius:6px;font-family:&quot;background:#00BCD4;font-size:20px;line-height:37px;margin:18px 0px !important;"
+    >
+      <span>
+        <span style="color:#666666;">快速上手</span>
+        <span style="display:none;"></span>
+      </span>
+    </h2>
+
+    <p></p>
+    <ul style="padding-left: 24px;">
+      <li>
+        <span style="font-size:16px;line-height:3;">
+          <span style="display:none;"></span>文档【代码生成】:先用代码生成器生成完整代码
+        </span>
+      </li>
+      <li>
+        <span
+          style="font-size:16px;line-height:3;"
+        >编写扩展业务代码:文档->[前端开发]->[后台开发]->[组件api(ViewGrid组件)]</span>
+      </li>
+       <li>
+        <span
+          style="font-size:16px;line-height:3;"
+        >编写扩展业务代码涉及组件:ViewGird.vue、VolForm.vue、VolTable.vue、VolBox.vue、VolUpload,根据需要找这几个组件参数即可</span>
+      </li>
+    </ul>
+    <p>
+      <br />
+    </p>
 
     <h2
       style="box-sizing:border-box;-webkit-tap-highlight-color:transparent;padding:2px 20px;border-radius:6px;color:#EBEBEB;font-family:&quot;background:#00BCD4;font-size:20px;line-height:37px;white-space:normal;margin:18px 0px !important;"
@@ -154,16 +187,14 @@
           >如果修改了后台端口(默认9991,在后台Program.cs中配置)，同时需要修改前端http.js配置development对应url</span>
         </span>
       </li>
-	  <li
+      <li
         style="box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0px;padding:0px;"
       >
         <span style="line-height:3;font-size:14px;color:red;">
-          <span
-            style="font-size:16px;"
-          >不要在vs里直接启动动项目(vs启动项目不能实时编译,前端调用后台的url也访问不了)，按照【启动项目】来操作</span>
+          <span style="font-size:16px;">不要在vs里直接启动动项目(vs启动项目不能实时编译,前端调用后台的url也访问不了)，按照【启动项目】来操作</span>
         </span>
       </li>
-	    <li
+      <li
         style="box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0px;padding:0px;"
       >
         <span style="line-height:3;font-size:14px;">
@@ -179,33 +210,63 @@
         </span>
       </span>
     </p>
+
     <h2
       style="padding-left: 24px;white-space:normal;box-sizing:border-box;-webkit-tap-highlight-color:transparent;padding:2px 20px;border-radius:6px;font-family:&quot;background:#00BCD4;font-size:20px;line-height:37px;margin:18px 0px !important;"
     >
       <span>
-        <span style="color:#666666;">项目开发</span>
+        <span style="color:#666666;">项目发布</span>
         <span style="display:none;"></span>
       </span>
     </h2>
-    <p></p>
     <ul style="   padding-left: 24px;">
       <li>
-        <span style="font-size:16px;line-height:3;">
-          <span style="display:none;"></span>使用代码生成器自动生成前端、后台代码【代码生成介绍】
-        </span>
+        <p
+          style="font-size:16px;line-height:3;color:red;"
+        >发布后台</p>
+           <p
+          style="font-size:16px;line-height:3;"
+        >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1、直接右击发布(发布方法，选文件系统即可)，发布完成后，将upload文件夹复制到发布后的路径</p>
+        <p
+          style="font-size:16px;line-height:3;"
+        >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2、配置跨域,发布后的文件夹下，配置appsettings.json属性CorsUrls,将部署好的前端vue站点url添加到CorsUrls中</p>
+            <p
+          style="font-size:16px;line-height:3;"
+        >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3、部署后台项目站点</p>
       </li>
       <li>
-        <span
+        <span style="font-size:16px;line-height:3;color:red;">发布前端</span>
+        <p
           style="font-size:16px;line-height:3;"
-        >如果生成的代码满足不了业务，可使用扩展代码进行业务编写，扩展业务编写参照【组件Api】使用，重点是【ViewGird组件】使用</span>
+        >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1、修改src\api\http.js文件，修改process.env.NODE_ENV 配置：axios.defaults.baseURL ='部署的后台地址'，如：http://132.232.2.109:9991</p>
+           <p
+          style="font-size:16px;line-height:3;"
+        >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2、执行前端发布：../vol.vue/目录下双击build.bat运行，发布完成后的项目在dist文件夹里</p>
+      </li>
+      <li>
+        <p style="font-size:16px;line-height:3;color:red;">访问报错</p>
+           <p
+          style="font-size:16px;line-height:3;"
+        >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1、确认后台部署的站点能不能打开</p>
+        <p
+          style="font-size:16px;line-height:3;"
+        >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2、确认后台appsettings.json中是否配置跨域。(修改配置后，重启下后台项目)</p>
+        <p
+          style="font-size:16px;line-height:3;"
+        >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 3、在部署的后台项目文件夹下，修改web.config属性stdoutLogEnabled="true"，当前目录下新建一个空文件夹logs,再直接访问后台接口，查看logs日志</p>
+        <p
+          style="font-size:16px;line-height:3;"
+        >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4、如果logs文件夹下没有日志，查数据库sys_log表或Logger\Queue\路径下日志</p>
+      </li>
+          <li>
+        <span style="font-size:16px;line-height:3;color:red;">前端刷新页面404报错</span>
+           <p
+          style="font-size:16px;line-height:3;"
+        >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1、修改前端route文件夹下index.js文件，将 mode: 'history'改为  history: true</p>
       </li>
     </ul>
-    <p>
-      <br />
-    </p>
-    <p>
-      <br />
-    </p>
+
+
     <h2
       style="box-sizing:border-box;-webkit-tap-highlight-color:transparent;padding:2px 20px;border-radius:6px;color:#EBEBEB;font-family:&quot;background:#00BCD4;font-size:20px;line-height:37px;white-space:normal;margin:18px 0px !important;"
     >
