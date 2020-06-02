@@ -41,23 +41,24 @@
         </div>
       </div>
       <div class="vol-path">
-        <ul class="header-navigation">
-          <li
+        <!-- 2020.05.31增加顶部导tabs超出后滚动 -->
+        <Tabs
+          @on-click="selectNav"
+          @on-tab-remove="removeNav"
+          v-model="selectId"
+          type="card"
+          :animated="false"
+          class="header-navigation"
+        >
+          <TabPane
             :class="{active:item.id==selectId}"
+            :name="item.id+''"
+            :closable="navIndex!=0"
             v-for="(item,navIndex) in navigation"
             :key="navIndex"
-            @click="selectNav(item.id)"
-          >
-            {{item.name}}
-            <Icon
-              @click="removeNav(item.id)"
-              v-if="navIndex!=0"
-              class="icon-romve"
-              type="md-close-circle"
-              @click.stop
-            />
-          </li>
-        </ul>
+            :label="item.name"
+          ></TabPane>
+        </Tabs>
       </div>
       <div class="vol-main" id="vol-main">
         <el-scrollbar style="height:100%;">
@@ -200,7 +201,7 @@ export default {
       });
     },
     selectNav(id) {
-      this.selectId = id;
+      this.selectId = id + "";
       this.$router.push({
         path: this.getNavigation(id).path
       });
@@ -217,7 +218,7 @@ export default {
         return this.$message("菜单关闭发生错误");
       }
       var navItem = this.navigation[_index - 1];
-      this.selectId = navItem.id;
+      this.selectId = navItem.id+"";
       this.navigation.splice(_index, 1);
       this.$router.push({
         path: navItem.path
@@ -250,7 +251,7 @@ export default {
           path: item.path
         });
       }
-      $vueIndex.selectId = treeId;
+      $vueIndex.selectId = treeId+"";
     },
     showTime() {
       var week = new Array(
@@ -363,7 +364,7 @@ body {
   position: relative;
   width: 100%;
   display: inline-block;
-  border-top: 1px solid #e4e4e4;
+  /* border-top: 1px solid #e4e4e4; */
   border-bottom: 2px solid #eee;
   /* z-index: 1; */
 }
@@ -376,6 +377,7 @@ body {
   height: 60px;
   width: 100%;
   position: relative;
+  border-bottom: 1px solid #eee;
   /* line-height: 60px; */
   /* background-color: #272929; */
 }
@@ -452,7 +454,7 @@ body {
 }
 .header-navigation {
   cursor: pointer;
-    box-shadow: 3px 0px 6px #f6f7f7;
+  box-shadow: 3px 0px 6px #f6f7f7;
   border-bottom: 1px solid #eee;
   // border-top: 1px solid #eee;
   height: 32px;
@@ -777,11 +779,10 @@ img:not([src]) {
   //   color: white;
   // }
 
-
   .header-navigation {
     box-shadow: -7px 11px 10px -13px #678aa7;
     border-bottom: 1px solid #eee;
-    border-top: 1px solid #eee;
+    // border-top: 1px solid #eee;
     height: 32px;
     overflow: hidden;
     line-height: 32px;
@@ -808,7 +809,6 @@ img:not([src]) {
 }
 </style>
 <style  scoped>
-
 .vol-theme-white .vol-aside >>> .ivu-menu-submenu-title {
   background: #005bb8 !important;
 }
@@ -905,5 +905,25 @@ img:not([src]) {
     margin-bottom: 17px;
     border: 1px solid #d4d2d2;
   }
+}
+</style>
+
+<style scoped>
+/* 2020.05.31增加顶部导tabs超出后滚动 */
+.header-navigation >>> .ivu-tabs-nav-prev {
+  z-index: 999;
+  border-radius: 3px;
+  text-align: center;
+  width: 30px;
+  background: #f8f8f9;
+  border-right: 1px solid #d8d7d7;
+}
+.header-navigation >>> .ivu-tabs-nav-next {
+  z-index: 999;
+  border-radius: 3px;
+  text-align: center;
+  width: 30px;
+  background: #f8f8f9;
+  border-left: 1px solid #d8d7d7;
 }
 </style>
